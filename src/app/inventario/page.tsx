@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -9,13 +10,17 @@ import {
   Package,
   X,
   Layers,
-  RefreshCw
+  RefreshCw,
+  EyeOff
 } from 'lucide-react';
 import { storage } from '@/lib/storage';
 import { Product, RecipeItem } from '@/lib/types';
 import { formatCurrency, cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
-export default function InventarioPage() {
+function InventarioPageContent() {
+  const { isGuest } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -65,7 +70,6 @@ export default function InventarioPage() {
   useEffect(() => {
     const loadData = async () => {
       const apiProducts = await storage.loadProducts();
-      // Convertimos stock y minStock a enteros para todos los productos
       const productsWithIntegerStock = apiProducts.map(p => ({
         ...p,
         stock: Math.round(Number(p.stock)),
@@ -134,7 +138,6 @@ export default function InventarioPage() {
     setProducts(updatedProducts);
     storage.saveProducts(updatedProducts);
     
-    // Recargamos los datos frescos desde la API para asegurarnos de la sincronización
     const refreshedProducts = await storage.loadProducts();
     if (refreshedProducts.length > 0) {
       setProducts(refreshedProducts);
@@ -149,7 +152,6 @@ export default function InventarioPage() {
       setProducts(updatedProducts);
       await storage.deleteProduct(id);
       
-      // Recargamos los datos frescos desde la API para asegurarnos de la sincronización
       const refreshedProducts = await storage.loadProducts();
       if (refreshedProducts.length > 0) {
         setProducts(refreshedProducts);
@@ -190,7 +192,15 @@ export default function InventarioPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Inventario</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Inventario</h1>
+            {isGuest && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-full text-xs font-bold border border-amber-100">
+                <EyeOff className="w-3 h-3" />
+                Modo Invitado
+              </div>
+            )}
+          </div>
           <p className="text-foreground/60 text-sm sm:text-base mt-1">Gestiona tus materiales y productos terminados.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
@@ -204,7 +214,13 @@ export default function InventarioPage() {
           </button>
           <button 
             onClick={handleOpenAddModal}
-            className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 w-full sm:w-auto"
+            disabled={isGuest}
+            className={cn(
+              "flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold transition-colors shadow-lg w-full sm:w-auto",
+              isGuest 
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed shadow-none" 
+                : "bg-primary text-white hover:bg-primary/90 shadow-primary/20"
+            )}
           >
             <Plus className="w-5 h-5" />
             Nuevo Item
@@ -305,13 +321,25 @@ export default function InventarioPage() {
                 <div className="flex items-center gap-2 justify-end border-t border-muted pt-3 mt-auto">
                   <button 
                     onClick={() => setEditingProduct(p)}
-                    className="p-2 hover:bg-muted rounded-lg text-foreground/60 hover:text-primary transition-colors"
+                    disabled={isGuest}
+                    className={cn(
+                      "p-2 rounded-lg transition-colors",
+                      isGuest 
+                        ? "text-gray-400 cursor-not-allowed" 
+                        : "text-foreground/60 hover:bg-muted hover:text-primary"
+                    )}
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => handleDeleteProduct(p.id)}
-                    className="p-2 hover:bg-rose-50 rounded-lg text-foreground/60 hover:text-rose-600 transition-colors"
+                    disabled={isGuest}
+                    className={cn(
+                      "p-2 rounded-lg transition-colors",
+                      isGuest 
+                        ? "text-gray-400 cursor-not-allowed" 
+                        : "text-foreground/60 hover:bg-rose-50 hover:text-rose-600"
+                    )}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -396,13 +424,25 @@ export default function InventarioPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button 
                           onClick={() => setEditingProduct(p)}
-                          className="p-2 hover:bg-muted rounded-lg text-foreground/60 hover:text-primary transition-colors"
+                          disabled={isGuest}
+                          className={cn(
+                            "p-2 rounded-lg transition-colors",
+                            isGuest 
+                              ? "text-gray-400 cursor-not-allowed" 
+                              : "text-foreground/60 hover:bg-muted hover:text-primary"
+                          )}
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDeleteProduct(p.id)}
-                          className="p-2 hover:bg-rose-50 rounded-lg text-foreground/60 hover:text-rose-600 transition-colors"
+                          disabled={isGuest}
+                          className={cn(
+                            "p-2 rounded-lg transition-colors",
+                            isGuest 
+                              ? "text-gray-400 cursor-not-allowed" 
+                              : "text-foreground/60 hover:bg-rose-50 hover:text-rose-600"
+                          )}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -417,7 +457,7 @@ export default function InventarioPage() {
       )}
 
       {/* Add/Edit Product Modal */}
-      {isModalOpen && (
+      {isModalOpen && !isGuest && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
           <div className="bg-card w-full max-w-2xl rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[95vh]">
             <div className="p-5 sm:p-8 border-b border-muted flex justify-between items-center bg-card shrink-0">
@@ -435,7 +475,6 @@ export default function InventarioPage() {
             </div>
             
             <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5 sm:space-y-6 overflow-y-auto">
-              {/* Tipo de Item */}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-foreground/70 ml-1">¿Qué estás agregando?</label>
                 <div className="flex p-1 bg-muted rounded-2xl w-full">
@@ -544,7 +583,6 @@ export default function InventarioPage() {
                 />
               </div>
 
-              {/* Sección de Receta (Solo para Productos) */}
               {formData.type === 'product' && (
                 <div className="space-y-4 pt-3 border-t border-muted">
                   <div className="flex items-center justify-between">
@@ -624,5 +662,13 @@ export default function InventarioPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function InventarioPage() {
+  return (
+    <ProtectedRoute>
+      <InventarioPageContent />
+    </ProtectedRoute>
   );
 }

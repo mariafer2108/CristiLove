@@ -1,7 +1,11 @@
+
+'use client';
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/Sidebar";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,19 +16,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: Readonly&lt;{
   children: React.ReactNode;
-}>) {
+}&gt;) {
   return (
-    <html lang="es" className="h-full antialiased">
-      <body className={`${inter.className} h-full bg-background`}>
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 overflow-y-auto pt-20 pb-8 px-4 md:pt-8 md:px-8 md:pl-72">
-            {children}
-          </main>
-        </div>
-      </body>
-    </html>
+    &lt;html lang="es" className="h-full antialiased"&gt;
+      &lt;body className={`${inter.className} h-full bg-background`}&gt;
+        &lt;AuthProvider&gt;
+          &lt;div className="flex h-screen overflow-hidden"&gt;
+            &lt;Sidebar /&gt;
+            &lt;main className="flex-1 overflow-y-auto pt-20 pb-8 px-4 md:pt-8 md:px-8 md:pl-72"&gt;
+              {children}
+            &lt;/main&gt;
+          &lt;/div&gt;
+        &lt;/AuthProvider&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
   );
 }

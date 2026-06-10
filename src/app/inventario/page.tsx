@@ -190,21 +190,19 @@ export default function InventarioPage() {
       ) : (
         <>
           {/* Mobile Card View */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:hidden px-1">
             {filteredProducts.map((p) => (
-              <div key={p.id} className="bg-card rounded-xl border border-muted shadow-sm p-4 flex flex-col">
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white shrink-0",
-                      p.type === 'product' ? "bg-primary" : "bg-accent"
-                    )}>
-                      {p.name.charAt(0)}
-                    </div>
-                    <div className="min-w-0">
-                      <span className="font-bold text-foreground block truncate">{p.name}</span>
-                      <span className="text-[10px] text-foreground/40 uppercase font-bold tracking-wider">{p.category}</span>
-                    </div>
+              <div key={p.id} className="bg-card rounded-xl border border-muted shadow-sm p-4 flex flex-col overflow-hidden">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white shrink-0",
+                    p.type === 'product' ? "bg-primary" : "bg-accent"
+                  )}>
+                    {p.name.charAt(0)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="font-bold text-foreground block truncate">{p.name}</span>
+                    <span className="text-[10px] text-foreground/40 uppercase font-bold tracking-wider">{p.category}</span>
                   </div>
                   <span className={cn(
                     "px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border shrink-0",
@@ -212,18 +210,18 @@ export default function InventarioPage() {
                       ? "bg-primary/10 text-primary border-primary/20" 
                       : "bg-accent/10 text-accent-foreground border-accent/20"
                   )}>
-                    {p.type === 'product' ? 'Producto' : 'Material'}
+                    {p.type === 'product' ? 'Prod' : 'Mat'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between mb-3">
-                  <div>
+                  <div className="min-w-0">
                     <span className={cn(
                       "font-bold text-sm",
                       p.stock <= p.minStock ? "text-rose-600" : "text-foreground"
                     )}>
                       {p.stock} {p.unit || 'uds'}
                     </span>
-                    <span className="text-xs text-foreground/60 block">Stock disponible</span>
+                    <span className="text-xs text-foreground/60 block">Stock</span>
                   </div>
                   <div className="text-right">
                     <span className="font-bold text-sm text-foreground">
@@ -243,17 +241,15 @@ export default function InventarioPage() {
                 <div className="flex items-center gap-2 justify-end border-t border-muted pt-3 mt-auto">
                   <button 
                     onClick={() => setEditingProduct(p)}
-                    className="flex-1 p-2 hover:bg-muted rounded-lg text-foreground/60 hover:text-primary transition-colors text-sm font-medium flex items-center justify-center gap-1"
+                    className="p-2 hover:bg-muted rounded-lg text-foreground/60 hover:text-primary transition-colors"
                   >
                     <Edit2 className="w-4 h-4" />
-                    Editar
                   </button>
                   <button 
                     onClick={() => handleDeleteProduct(p.id)}
-                    className="flex-1 p-2 hover:bg-rose-50 rounded-lg text-foreground/60 hover:text-rose-600 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+                    className="p-2 hover:bg-rose-50 rounded-lg text-foreground/60 hover:text-rose-600 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Eliminar
                   </button>
                 </div>
               </div>

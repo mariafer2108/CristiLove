@@ -27,10 +27,21 @@ export default function InventarioPage() {
     setIsRefreshing(true);
     try {
       const apiProducts = await storage.loadProducts();
-      if (apiProducts.length > 0) {
-        setProducts(apiProducts);
+      const productsWithIntegerStock = apiProducts.map(p => ({
+        ...p,
+        stock: Math.round(Number(p.stock)),
+        minStock: Math.round(Number(p.minStock)),
+      }));
+      if (productsWithIntegerStock.length > 0) {
+        setProducts(productsWithIntegerStock);
       } else {
-        setProducts(storage.getProducts());
+        const localProducts = storage.getProducts();
+        const localWithIntegerStock = localProducts.map(p => ({
+          ...p,
+          stock: Math.round(Number(p.stock)),
+          minStock: Math.round(Number(p.minStock)),
+        }));
+        setProducts(localWithIntegerStock);
       }
     } finally {
       setIsRefreshing(false);
@@ -54,10 +65,22 @@ export default function InventarioPage() {
   useEffect(() => {
     const loadData = async () => {
       const apiProducts = await storage.loadProducts();
-      if (apiProducts.length > 0) {
-        setProducts(apiProducts);
+      // Convertimos stock y minStock a enteros para todos los productos
+      const productsWithIntegerStock = apiProducts.map(p => ({
+        ...p,
+        stock: Math.round(Number(p.stock)),
+        minStock: Math.round(Number(p.minStock)),
+      }));
+      if (productsWithIntegerStock.length > 0) {
+        setProducts(productsWithIntegerStock);
       } else {
-        setProducts(storage.getProducts());
+        const localProducts = storage.getProducts();
+        const localWithIntegerStock = localProducts.map(p => ({
+          ...p,
+          stock: Math.round(Number(p.stock)),
+          minStock: Math.round(Number(p.minStock)),
+        }));
+        setProducts(localWithIntegerStock);
       }
     };
     loadData();

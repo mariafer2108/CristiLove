@@ -8,7 +8,8 @@ import {
   Edit2,
   Package,
   X,
-  Layers
+  Layers,
+  RefreshCw
 } from 'lucide-react';
 import { storage } from '@/lib/storage';
 import { Product, RecipeItem } from '@/lib/types';
@@ -20,6 +21,21 @@ export default function InventarioPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'product' | 'material'>('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    try {
+      const apiProducts = await storage.loadProducts();
+      if (apiProducts.length > 0) {
+        setProducts(apiProducts);
+      } else {
+        setProducts(storage.getProducts());
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const initialProductState: Partial<Product> = {
     name: '',
@@ -152,13 +168,23 @@ export default function InventarioPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Inventario</h1>
           <p className="text-foreground/60 text-sm sm:text-base mt-1">Gestiona tus materiales y productos terminados.</p>
         </div>
-        <button 
-          onClick={handleOpenAddModal}
-          className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 w-full sm:w-auto"
-        >
-          <Plus className="w-5 h-5" />
-          Nuevo Item
-        </button>
+        <div className="flex gap-3 w-full sm:w-auto">
+          <button 
+            onClick={refreshData}
+            disabled={isRefreshing}
+            className="flex items-center justify-center gap-2 bg-muted hover:bg-muted/80 text-foreground px-4 py-3 rounded-xl font-bold transition-colors w-full sm:w-auto disabled:opacity-50"
+          >
+            <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refrescar
+          </button>
+          <button 
+            onClick={handleOpenAddModal}
+            className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 w-full sm:w-auto"
+          >
+            <Plus className="w-5 h-5" />
+            Nuevo Item
+          </button>
+        </div>
       </div>
 
       {/* Filters & Search */}

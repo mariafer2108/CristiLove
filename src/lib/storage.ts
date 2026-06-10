@@ -6,31 +6,99 @@ const STORAGE_KEYS = {
   INVENTORY: 'cristilove_inventory',
 };
 
+// Función para verificar si estamos en el navegador
+const isBrowser = () => typeof window !== 'undefined';
+
+// Función para cargar datos desde la API
+const loadFromAPI = async (type: 'products' | 'transactions'): Promise<any[]> => {
+  try {
+    const res = await fetch(`/api/${type}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.length > 0) {
+        // Guardamos en localStorage como respaldo
+        const key = type === 'products' ? STORAGE_KEYS.PRODUCTS : STORAGE_KEYS.TRANSACTIONS;
+        if (isBrowser()) {
+          localStorage.setItem(key, JSON.stringify(data));
+        }
+        return data;
+      }
+    }
+  } catch (error) {
+    console.error(`Error loading ${type} from API:`, error);
+  }
+  // Fallback a localStorage si la API falla
+  return loadFromLocal(type);
+};
+
+// Función para cargar desde localStorage
+const loadFromLocal = (type: 'products' | 'transactions'): any[] => {
+  if (!isBrowser()) return [];
+  const key = type === 'products' ? STORAGE_KEYS.PRODUCTS : STORAGE_KEYS.TRANSACTIONS;
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : [];
+};
+
+// Función para guardar datos en API y localStorage
+const saveData = async (type: 'products' | 'transactions', data: any[]) => {
+  // Primero guardamos en localStorage para velocidad
+  const key = type === 'products' ? STORAGE_KEYS.PRODUCTS : STORAGE_KEYS.TRANSACTIONS;
+  if (isBrowser()) {
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
+  // Luego intentamos guardar en la API
+  try {
+    await fetch(`/api/${type}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch (error) {
+    console.error(`Error saving ${type} to API:`, error);
+  }
+};
+
 export const storage = {
   getProducts: (): Product[] => {
-    if (typeof window === 'undefined') return [];
+    if (!isBrowser()) return [];
     const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
     return data ? JSON.parse(data) : [];
   },
+
+  // Función para cargar productos desde la API (para usar en useEffect)
+  loadProducts: async (): Promise<Product[]> => {
+    return await loadFromAPI('products');
+  },
+
   saveProducts: (products: Product[]) => {
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+    saveData('products', products);
   },
   
   getTransactions: (): Transaction[] => {
-    if (typeof window === 'undefined') return [];
+    if (!isBrowser()) return [];
     const data = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
     return data ? JSON.parse(data) : [];
   },
+
+  // Función para cargar transacciones desde la API (para usar en useEffect)
+  loadTransactions: async (): Promise<Transaction[]> => {
+    return await loadFromAPI('transactions');
+  },
+
   saveTransactions: (transactions: Transaction[]) => {
-    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+    saveData('transactions', transactions);
   },
   
   getInventory: (): InventoryItem[] => {
-    if (typeof window === 'undefined') return [];
+    if (!isBrowser()) return [];
     const data = localStorage.getItem(STORAGE_KEYS.INVENTORY);
     return data ? JSON.parse(data) : [];
   },
+
   saveInventory: (items: InventoryItem[]) => {
-    localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(items));
+    if (isBrowser()) {
+      localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(items));
+    }
   },
 };

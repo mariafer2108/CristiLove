@@ -36,7 +36,15 @@ export default function InventarioPage() {
   const [formData, setFormData] = useState<Partial<Product>>(initialProductState);
 
   useEffect(() => {
-    setProducts(storage.getProducts());
+    const loadData = async () => {
+      const apiProducts = await storage.loadProducts();
+      if (apiProducts.length > 0) {
+        setProducts(apiProducts);
+      } else {
+        setProducts(storage.getProducts());
+      }
+    };
+    loadData();
   }, []);
 
   useEffect(() => {

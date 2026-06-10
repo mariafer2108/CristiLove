@@ -20,8 +20,23 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
-    setProducts(storage.getProducts());
-    setTransactions(storage.getTransactions());
+    const loadData = async () => {
+      const apiProducts = await storage.loadProducts();
+      const apiTransactions = await storage.loadTransactions();
+      
+      if (apiProducts.length > 0) {
+        setProducts(apiProducts);
+      } else {
+        setProducts(storage.getProducts());
+      }
+      
+      if (apiTransactions.length > 0) {
+        setTransactions(apiTransactions);
+      } else {
+        setTransactions(storage.getTransactions());
+      }
+    };
+    loadData();
   }, []);
 
   const totalIncome = transactions

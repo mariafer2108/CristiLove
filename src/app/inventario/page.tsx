@@ -98,6 +98,8 @@ export default function InventarioPage() {
       lastUpdated: new Date().toISOString(),
       type: formData.type || 'product',
       recipe: formData.type === 'product' ? formData.recipe : undefined,
+      stock: Math.round(Number(formData.stock)),
+      minStock: Math.round(Number(formData.minStock)),
     };
 
     if (editingProduct) {
@@ -474,9 +476,10 @@ export default function InventarioPage() {
                   <input 
                     required
                     type="number" 
+                    step="1"
                     className="w-full px-4 py-3 rounded-xl border border-muted bg-muted/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                     value={formData.stock}
-                    onChange={(e) => setFormData({...formData, stock: parseFloat(e.target.value)})}
+                    onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value) || 0})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -484,9 +487,10 @@ export default function InventarioPage() {
                   <input 
                     required
                     type="number" 
+                    step="1"
                     className="w-full px-4 py-3 rounded-xl border border-muted bg-muted/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                     value={formData.minStock}
-                    onChange={(e) => setFormData({...formData, minStock: parseFloat(e.target.value)})}
+                    onChange={(e) => setFormData({...formData, minStock: parseInt(e.target.value) || 0})}
                   />
                 </div>
                 <div className="space-y-2 col-span-2 sm:col-span-1">

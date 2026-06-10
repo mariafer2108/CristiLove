@@ -182,7 +182,7 @@ export default function InventarioPage() {
       ) : (
         <>
           {/* Mobile Card View */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:hidden">
             {filteredProducts.map((p) => (
               <div key={p.id} className="bg-card rounded-xl border border-muted shadow-sm p-4 flex flex-col">
                 <div className="flex items-start justify-between gap-3 mb-3">
@@ -253,7 +253,7 @@ export default function InventarioPage() {
           </div>
 
           {/* Desktop Table View */}
-          <div className="bg-card rounded-2xl border border-muted shadow-sm overflow-hidden hidden sm:block">
+          <div className="bg-card rounded-2xl border border-muted shadow-sm overflow-hidden hidden md:block">
             <table className="w-full">
               <thead className="bg-muted/50 text-left border-b border-muted">
                 <tr>

@@ -48,11 +48,11 @@ export default function FinanzasPage() {
     });
   };
 
-  const handleDeleteTransaction = (id: string) => {
+  const handleDeleteTransaction = async (id: string) => {
     if (confirm('¿Estás segura de eliminar esta transacción?')) {
       const updatedTransactions = transactions.filter(t => t.id !== id);
       setTransactions(updatedTransactions);
-      storage.saveTransactions(updatedTransactions);
+      await storage.deleteTransaction(id);
     }
   };
 

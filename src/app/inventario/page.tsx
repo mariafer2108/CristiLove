@@ -95,11 +95,11 @@ export default function InventarioPage() {
     handleCloseModal();
   };
 
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
     if (confirm('¿Estás segura de eliminar este item?')) {
       const updatedProducts = products.filter(p => p.id !== id);
       setProducts(updatedProducts);
-      storage.saveProducts(updatedProducts);
+      await storage.deleteProduct(id);
     }
   };
 

@@ -98,6 +98,38 @@ export const storage = {
   saveTransactions: (transactions: Transaction[]) => {
     saveData('transactions', transactions);
   },
+
+  deleteProduct: async (id: string) => {
+    // Eliminar localmente
+    if (isBrowser()) {
+      const products = storage.getProducts();
+      const updated = products.filter(p => p.id !== id);
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+    }
+    
+    // Eliminar en la API
+    try {
+      await fetch(`/api/products?id=${id}`, { method: 'DELETE' });
+    } catch (error) {
+      console.error('Error deleting product from API:', error);
+    }
+  },
+
+  deleteTransaction: async (id: string) => {
+    // Eliminar localmente
+    if (isBrowser()) {
+      const transactions = storage.getTransactions();
+      const updated = transactions.filter(t => t.id !== id);
+      localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(updated));
+    }
+    
+    // Eliminar en la API
+    try {
+      await fetch(`/api/transactions?id=${id}`, { method: 'DELETE' });
+    } catch (error) {
+      console.error('Error deleting transaction from API:', error);
+    }
+  },
   
   getInventory: (): InventoryItem[] => {
     if (!isBrowser()) return [];

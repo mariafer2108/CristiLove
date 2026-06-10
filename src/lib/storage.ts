@@ -1,9 +1,18 @@
-import { Product, Transaction, InventoryItem } from './types';
+import { Product, Transaction, InventoryItem, AppConfig } from './types';
 
 const STORAGE_KEYS = {
   PRODUCTS: 'cristilove_products',
   TRANSACTIONS: 'cristilove_transactions',
   INVENTORY: 'cristilove_inventory',
+  CONFIG: 'cristilove_config',
+};
+
+const DEFAULT_CONFIG: AppConfig = {
+  shopName: 'CristiLove',
+  ownerName: 'Cristi',
+  currency: 'CLP',
+  lowStockAlert: true,
+  dailyReport: false,
 };
 
 // Función para verificar si estamos en el navegador
@@ -101,4 +110,43 @@ export const storage = {
       localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(items));
     }
   },
+
+  getConfig: (): AppConfig => {
+    if (!isBrowser()) return DEFAULT_CONFIG;
+    const data = localStorage.getItem(STORAGE_KEYS.CONFIG);
+    return data ? JSON.parse(data) : DEFAULT_CONFIG;
+  },
+
+  saveConfig: (config: AppConfig) => {
+    if (isBrowser()) {
+      localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(config));
+    }
+  },
+
+  exportData: () => {
+    if (!isBrowser()) return;
+    const data = {
+      products: storage.getProducts(),
+      transactions: storage.getTransactions(),
+      config: storage.getConfig(),
+      exportDate: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cristilove_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  },
+
+  clearAllData: () => {
+    if (!isBrowser()) return;
+    if (confirm('¿Estás segura? Esto borrará todos los productos y transacciones localmente.')) {
+      localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
+      localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
+      localStorage.removeItem(STORAGE_KEYS.INVENTORY);
+      window.location.reload();
+    }
+  }
 };

@@ -37,3 +37,11 @@ export interface InventoryItem {
   unit: string;
   minQuantity: number;
 }
+
+export interface AppConfig {
+  shopName: string;
+  ownerName: string;
+  currency: string;
+  lowStockAlert: boolean;
+  dailyReport: boolean;
+}

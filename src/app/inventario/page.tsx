@@ -219,7 +219,7 @@ export default function InventarioPage() {
                       "font-bold text-sm",
                       p.stock <= p.minStock ? "text-rose-600" : "text-foreground"
                     )}>
-                      {p.stock} {p.unit || 'uds'}
+                      {Number.isInteger(p.stock) ? p.stock : p.stock.toFixed(2)} {p.unit === 'unidad' && p.stock !== 1 ? 'unidades' : p.unit || 'uds'}
                     </span>
                     <span className="text-xs text-foreground/60 block">Stock</span>
                   </div>
@@ -302,7 +302,7 @@ export default function InventarioPage() {
                           "font-bold",
                           p.stock <= p.minStock ? "text-rose-600" : "text-foreground"
                         )}>
-                          {p.stock} {p.unit || 'uds'}
+                          {Number.isInteger(p.stock) ? p.stock : p.stock.toFixed(2)} {p.unit === 'unidad' && p.stock !== 1 ? 'unidades' : p.unit || 'uds'}
                         </span>
                       </div>
                     </td>

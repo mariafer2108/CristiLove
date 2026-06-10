@@ -4,14 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Trash2, 
   Edit2,
   Package,
   X,
-  Layers,
-  ChevronDown,
-  ChevronUp
+  Layers
 } from 'lucide-react';
 import { storage } from '@/lib/storage';
 import { Product, RecipeItem } from '@/lib/types';
@@ -128,15 +125,15 @@ export default function InventarioPage() {
   const materials = products.filter(p => p.type === 'material');
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="max-w-7xl mx-auto space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Inventario</h1>
-          <p className="text-foreground/60 mt-1">Gestiona tus materiales y productos terminados.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Inventario</h1>
+          <p className="text-foreground/60 text-sm sm:text-base mt-1">Gestiona tus materiales y productos terminados.</p>
         </div>
         <button 
           onClick={handleOpenAddModal}
-          className="flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+          className="flex items-center justify-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 w-full sm:w-auto"
         >
           <Plus className="w-5 h-5" />
           Nuevo Item
@@ -144,8 +141,8 @@ export default function InventarioPage() {
       </div>
 
       {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
+      <div className="flex flex-col gap-3">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/40" />
           <input 
             type="text" 
@@ -161,7 +158,7 @@ export default function InventarioPage() {
               key={type}
               onClick={() => setFilterType(type)}
               className={cn(
-                "px-4 py-2 rounded-lg text-sm font-bold capitalize transition-all",
+                "flex-1 px-3 py-2 rounded-lg text-xs sm:text-sm font-bold capitalize transition-all",
                 filterType === type 
                   ? "bg-white text-primary shadow-sm" 
                   : "text-foreground/40 hover:text-foreground/60"
@@ -173,121 +170,195 @@ export default function InventarioPage() {
         </div>
       </div>
 
-      {/* Products Table */}
-      <div className="bg-card rounded-2xl border border-muted shadow-sm overflow-hidden">
-        {filteredProducts.length === 0 ? (
-          <div className="p-20 text-center">
-            <div className="bg-muted w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Package className="w-10 h-10 text-foreground/20" />
-            </div>
-            <h3 className="text-xl font-bold text-foreground">No hay items</h3>
-            <p className="text-foreground/60 mt-2">Comienza agregando materiales o productos.</p>
+      {/* Products List - Responsive */}
+      {filteredProducts.length === 0 ? (
+        <div className="bg-card rounded-2xl border border-muted shadow-sm p-12 sm:p-20 text-center">
+          <div className="bg-muted w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+            <Package className="w-8 h-8 sm:w-10 sm:h-10 text-foreground/30" />
           </div>
-        ) : (
-          <table className="w-full">
-            <thead className="bg-muted/50 text-left border-b border-muted">
-              <tr>
-                <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase">Nombre</th>
-                <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase">Tipo</th>
-                <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase">Stock</th>
-                <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase text-right">Precio/Costo</th>
-                <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase">Receta</th>
-                <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-muted">
-              {filteredProducts.map((p) => (
-                <tr key={p.id} className="hover:bg-muted/20 transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white",
-                        p.type === 'product' ? "bg-primary" : "bg-accent"
-                      )}>
-                        {p.name.charAt(0)}
-                      </div>
-                      <div>
-                        <span className="font-bold text-foreground block">{p.name}</span>
-                        <span className="text-[10px] text-foreground/40 uppercase font-bold tracking-wider">{p.category}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={cn(
-                      "px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border",
-                      p.type === 'product' 
-                        ? "bg-primary/10 text-primary border-primary/20" 
-                        : "bg-accent/10 text-accent-foreground border-accent/20"
+          <h3 className="text-lg sm:text-xl font-bold text-foreground">No hay items</h3>
+          <p className="text-foreground/60 mt-2 text-sm sm:text-base">Comienza agregando materiales o productos.</p>
+        </div>
+      ) : (
+        <>
+          {/* Mobile Card View */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:hidden">
+            {filteredProducts.map((p) => (
+              <div key={p.id} className="bg-card rounded-xl border border-muted shadow-sm p-4 flex flex-col">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={cn(
+                      "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white shrink-0",
+                      p.type === 'product' ? "bg-primary" : "bg-accent"
                     )}>
-                      {p.type === 'product' ? 'Producto' : 'Material'}
+                      {p.name.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-bold text-foreground block truncate">{p.name}</span>
+                      <span className="text-[10px] text-foreground/40 uppercase font-bold tracking-wider">{p.category}</span>
+                    </div>
+                  </div>
+                  <span className={cn(
+                    "px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border shrink-0",
+                    p.type === 'product' 
+                      ? "bg-primary/10 text-primary border-primary/20" 
+                      : "bg-accent/10 text-accent-foreground border-accent/20"
+                  )}>
+                    {p.type === 'product' ? 'Producto' : 'Material'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <span className={cn(
+                      "font-bold text-sm",
+                      p.stock <= p.minStock ? "text-rose-600" : "text-foreground"
+                    )}>
+                      {p.stock} {p.unit || 'uds'}
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col">
-                      <span className={cn(
-                        "font-bold",
-                        p.stock <= p.minStock ? "text-rose-600" : "text-foreground"
-                      )}>
-                        {p.stock} {p.unit || 'uds'}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex flex-col">
-                      <span className="font-bold text-foreground">
-                        {p.type === 'product' ? formatCurrency(p.price) : formatCurrency(p.cost)}
-                      </span>
-                      <span className="text-[10px] text-foreground/40 font-bold uppercase">
-                        {p.type === 'product' ? 'Venta' : 'Costo Unit.'}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {p.type === 'product' && p.recipe && p.recipe.length > 0 ? (
-                      <div className="flex items-center gap-1 text-primary">
-                        <Layers className="w-4 h-4" />
-                        <span className="text-xs font-bold">{p.recipe.length} materiales</span>
-                      </div>
-                    ) : p.type === 'product' ? (
-                      <span className="text-xs text-foreground/30 font-medium italic">Sin receta</span>
-                    ) : (
-                      <span className="text-xs text-foreground/20">—</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => setEditingProduct(p)}
-                        className="p-2 hover:bg-muted rounded-lg text-foreground/60 hover:text-primary transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteProduct(p.id)}
-                        className="p-2 hover:bg-rose-50 rounded-lg text-foreground/60 hover:text-rose-600 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
+                    <span className="text-xs text-foreground/60 block">Stock disponible</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-bold text-sm text-foreground">
+                      {p.type === 'product' ? formatCurrency(p.price) : formatCurrency(p.cost)}
+                    </span>
+                    <span className="text-[10px] text-foreground/40 font-bold uppercase block">
+                      {p.type === 'product' ? 'Venta' : 'Costo'}
+                    </span>
+                  </div>
+                </div>
+                {p.type === 'product' && p.recipe && p.recipe.length > 0 && (
+                  <div className="flex items-center gap-1 text-primary mb-3">
+                    <Layers className="w-4 h-4" />
+                    <span className="text-xs font-bold">{p.recipe.length} materiales</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2 justify-end border-t border-muted pt-3 mt-auto">
+                  <button 
+                    onClick={() => setEditingProduct(p)}
+                    className="flex-1 p-2 hover:bg-muted rounded-lg text-foreground/60 hover:text-primary transition-colors text-sm font-medium flex items-center justify-center gap-1"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Editar
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteProduct(p.id)}
+                    className="flex-1 p-2 hover:bg-rose-50 rounded-lg text-foreground/60 hover:text-rose-600 transition-colors text-sm font-medium flex items-center justify-center gap-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="bg-card rounded-2xl border border-muted shadow-sm overflow-hidden hidden sm:block">
+            <table className="w-full">
+              <thead className="bg-muted/50 text-left border-b border-muted">
+                <tr>
+                  <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase">Nombre</th>
+                  <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase hidden md:table-cell">Tipo</th>
+                  <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase">Stock</th>
+                  <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase text-right">Precio/Costo</th>
+                  <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase hidden lg:table-cell">Receta</th>
+                  <th className="px-6 py-4 text-xs font-bold text-foreground/60 uppercase"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+              </thead>
+              <tbody className="divide-y divide-muted">
+                {filteredProducts.map((p) => (
+                  <tr key={p.id} className="hover:bg-muted/20 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white",
+                          p.type === 'product' ? "bg-primary" : "bg-accent"
+                        )}>
+                          {p.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <span className="font-bold text-foreground block truncate">{p.name}</span>
+                          <span className="text-[10px] text-foreground/40 uppercase font-bold tracking-wider">{p.category}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 hidden md:table-cell">
+                      <span className={cn(
+                        "px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border",
+                        p.type === 'product' 
+                          ? "bg-primary/10 text-primary border-primary/20" 
+                          : "bg-accent/10 text-accent-foreground border-accent/20"
+                      )}>
+                        {p.type === 'product' ? 'Producto' : 'Material'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className={cn(
+                          "font-bold",
+                          p.stock <= p.minStock ? "text-rose-600" : "text-foreground"
+                        )}>
+                          {p.stock} {p.unit || 'uds'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-foreground">
+                          {p.type === 'product' ? formatCurrency(p.price) : formatCurrency(p.cost)}
+                        </span>
+                        <span className="text-[10px] text-foreground/40 font-bold uppercase">
+                          {p.type === 'product' ? 'Venta' : 'Costo Unit.'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 hidden lg:table-cell">
+                      {p.type === 'product' && p.recipe && p.recipe.length > 0 ? (
+                        <div className="flex items-center gap-1 text-primary">
+                          <Layers className="w-4 h-4" />
+                          <span className="text-xs font-bold">{p.recipe.length} materiales</span>
+                        </div>
+                      ) : p.type === 'product' ? (
+                        <span className="text-xs text-foreground/30 font-medium italic">Sin receta</span>
+                      ) : (
+                        <span className="text-xs text-foreground/20">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => setEditingProduct(p)}
+                          className="p-2 hover:bg-muted rounded-lg text-foreground/60 hover:text-primary transition-colors"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteProduct(p.id)}
+                          className="p-2 hover:bg-rose-50 rounded-lg text-foreground/60 hover:text-rose-600 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
 
       {/* Add/Edit Product Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-card w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
-            <div className="p-8 border-b border-muted flex justify-between items-center bg-card shrink-0">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+          <div className="bg-card w-full max-w-2xl rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[95vh]">
+            <div className="p-5 sm:p-8 border-b border-muted flex justify-between items-center bg-card shrink-0">
               <div>
-                <h2 className="text-2xl font-bold text-foreground">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                   {editingProduct ? 'Editar Item' : 'Nuevo Item'}
                 </h2>
-                <p className="text-foreground/60">
-                  Define si es un material o un producto final con receta.
+                <p className="text-foreground/60 text-sm sm:text-base">
+                  Define si es un material o un producto terminado con receta.
                 </p>
               </div>
               <button onClick={handleCloseModal} className="p-2 hover:bg-muted rounded-full transition-colors text-foreground/40">
@@ -295,7 +366,7 @@ export default function InventarioPage() {
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto">
+            <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-5 sm:space-y-6 overflow-y-auto">
               {/* Tipo de Item */}
               <div className="space-y-2">
                 <label className="text-sm font-bold text-foreground/70 ml-1">¿Qué estás agregando?</label>
@@ -304,30 +375,30 @@ export default function InventarioPage() {
                     type="button"
                     onClick={() => setFormData({...formData, type: 'material', recipe: undefined})}
                     className={cn(
-                      "flex-1 py-3 rounded-xl font-bold text-sm transition-all",
+                      "flex-1 py-2 sm:py-3 rounded-xl font-bold text-xs sm:text-sm transition-all",
                       formData.type === 'material' 
                         ? "bg-white text-accent-foreground shadow-sm" 
                         : "text-foreground/40 hover:text-foreground/60"
                     )}
                   >
-                    Material (Materia Prima)
+                    Material
                   </button>
                   <button 
                     type="button"
                     onClick={() => setFormData({...formData, type: 'product'})}
                     className={cn(
-                      "flex-1 py-3 rounded-xl font-bold text-sm transition-all",
+                      "flex-1 py-2 sm:py-3 rounded-xl font-bold text-xs sm:text-sm transition-all",
                       formData.type === 'product' 
                         ? "bg-white text-primary shadow-sm" 
                         : "text-foreground/40 hover:text-foreground/60"
                     )}
                   >
-                    Producto (Hecho con materiales)
+                    Producto
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-5 sm:gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-foreground/70 ml-1">Nombre</label>
                   <input 
@@ -354,9 +425,9 @@ export default function InventarioPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground/70 ml-1">Stock Actual</label>
+                  <label className="text-sm font-bold text-foreground/70 ml-1">Stock</label>
                   <input 
                     required
                     type="number" 
@@ -366,7 +437,7 @@ export default function InventarioPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground/70 ml-1">Stock Mínimo</label>
+                  <label className="text-sm font-bold text-foreground/70 ml-1">Mínimo</label>
                   <input 
                     required
                     type="number" 
@@ -375,7 +446,7 @@ export default function InventarioPage() {
                     onChange={(e) => setFormData({...formData, minStock: parseFloat(e.target.value)})}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2 sm:col-span-1">
                   <label className="text-sm font-bold text-foreground/70 ml-1">Unidad</label>
                   <input 
                     type="text" 
@@ -387,52 +458,50 @@ export default function InventarioPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-foreground/70 ml-1">
-                    {formData.type === 'product' ? 'Precio de Venta' : 'Costo de Compra'}
-                  </label>
-                  <input 
-                    required
-                    type="number" 
-                    className="w-full px-4 py-3 rounded-xl border border-muted bg-muted/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
-                    value={formData.type === 'product' ? formData.price : formData.cost}
-                    onChange={(e) => setFormData({
-                      ...formData, 
-                      [formData.type === 'product' ? 'price' : 'cost']: parseFloat(e.target.value)
-                    })}
-                  />
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-foreground/70 ml-1">
+                  {formData.type === 'product' ? 'Precio de Venta' : 'Costo de Compra'}
+                </label>
+                <input 
+                  required
+                  type="number" 
+                  className="w-full px-4 py-3 rounded-xl border border-muted bg-muted/20 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                  value={formData.type === 'product' ? formData.price : formData.cost}
+                  onChange={(e) => setFormData({
+                    ...formData, 
+                    [formData.type === 'product' ? 'price' : 'cost']: parseFloat(e.target.value)
+                  })}
+                />
               </div>
 
               {/* Sección de Receta (Solo para Productos) */}
               {formData.type === 'product' && (
-                <div className="space-y-4 pt-4 border-t border-muted">
+                <div className="space-y-4 pt-3 border-t border-muted">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                      <Layers className="w-5 h-5 text-primary" />
+                    <h3 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                      <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                       Receta del Producto
                     </h3>
                     <button 
                       type="button"
                       onClick={handleAddRecipeItem}
-                      className="text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors"
+                      className="text-xs sm:text-sm font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-lg hover:bg-primary/20 transition-colors"
                     >
                       + Agregar Material
                     </button>
                   </div>
                   
                   {(!formData.recipe || formData.recipe.length === 0) ? (
-                    <p className="text-sm text-foreground/40 italic text-center py-4 bg-muted/20 rounded-xl border border-dashed border-muted">
+                    <p className="text-sm text-foreground/40 italic text-center py-3 sm:py-4 bg-muted/20 rounded-xl border border-dashed border-muted">
                       No has agregado materiales a este producto.
                     </p>
                   ) : (
                     <div className="space-y-3">
                       {formData.recipe.map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 bg-muted/20 p-3 rounded-xl border border-muted">
+                        <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-muted/20 p-3 rounded-xl border border-muted">
                           <select 
                             required
-                            className="flex-1 px-3 py-2 rounded-lg border border-muted bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-medium"
+                            className="w-full sm:flex-1 px-3 py-2 rounded-lg border border-muted bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-medium"
                             value={item.materialId}
                             onChange={(e) => handleUpdateRecipeItem(index, 'materialId', e.target.value)}
                           >
@@ -441,23 +510,23 @@ export default function InventarioPage() {
                               <option key={m.id} value={m.id}>{m.name} ({m.unit})</option>
                             ))}
                           </select>
-                          <div className="flex items-center gap-2 w-32">
+                          <div className="flex items-center gap-3 w-full sm:w-auto">
                             <input 
                               required
                               type="number"
                               placeholder="Cant."
-                              className="w-full px-3 py-2 rounded-lg border border-muted bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-medium"
+                              className="flex-1 sm:w-32 px-3 py-2 rounded-lg border border-muted bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm font-medium"
                               value={item.quantity}
                               onChange={(e) => handleUpdateRecipeItem(index, 'quantity', parseFloat(e.target.value))}
                             />
+                            <button 
+                              type="button"
+                              onClick={() => handleRemoveRecipeItem(index)}
+                              className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
-                          <button 
-                            type="button"
-                            onClick={() => handleRemoveRecipeItem(index)}
-                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
                         </div>
                       ))}
                     </div>
@@ -465,19 +534,19 @@ export default function InventarioPage() {
                 </div>
               )}
 
-              <div className="flex gap-4 pt-4 shrink-0 bg-card">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-3 sm:pt-4 shrink-0 bg-card">
                 <button 
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 px-6 py-3 rounded-xl border border-muted font-bold text-foreground/60 hover:bg-muted transition-colors"
+                  className="flex-1 px-5 py-3 rounded-xl border border-muted font-bold text-foreground/60 hover:bg-muted transition-colors"
                 >
                   Cancelar
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+                  className="flex-1 px-5 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                 >
-                  {editingProduct ? 'Guardar Cambios' : 'Guardar Item'}
+                  {editingProduct ? 'Guardar' : 'Crear'}
                 </button>
               </div>
             </form>

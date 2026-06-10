@@ -71,7 +71,7 @@ export default function InventarioPage() {
     setFormData(initialProductState);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     let updatedProducts: Product[];
@@ -92,6 +92,13 @@ export default function InventarioPage() {
     
     setProducts(updatedProducts);
     storage.saveProducts(updatedProducts);
+    
+    // Recargamos los datos frescos desde la API para asegurarnos de la sincronización
+    const refreshedProducts = await storage.loadProducts();
+    if (refreshedProducts.length > 0) {
+      setProducts(refreshedProducts);
+    }
+    
     handleCloseModal();
   };
 
@@ -100,6 +107,12 @@ export default function InventarioPage() {
       const updatedProducts = products.filter(p => p.id !== id);
       setProducts(updatedProducts);
       await storage.deleteProduct(id);
+      
+      // Recargamos los datos frescos desde la API para asegurarnos de la sincronización
+      const refreshedProducts = await storage.loadProducts();
+      if (refreshedProducts.length > 0) {
+        setProducts(refreshedProducts);
+      }
     }
   };
 

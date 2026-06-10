@@ -31,11 +31,29 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const transaction = await request.json();
-    await sql`
-      INSERT INTO transactions (id, type, description, amount, category, date)
-      VALUES (${transaction.id}, ${transaction.type}, ${transaction.description}, ${transaction.amount}, ${transaction.category}, ${transaction.date});
-    `;
+    const data = await request.json();
+    
+    if (Array.isArray(data)) {
+      await sql`DELETE FROM transactions;`;
+      for (const t of data) {
+        await sql`
+          INSERT INTO transactions (id, type, description, amount, category, date)
+          VALUES (${t.id}, ${t.type}, ${t.description}, ${t.amount}, ${t.category}, ${t.date});
+        `;
+      }
+    } else {
+      const transaction = data;
+      await sql`
+        INSERT INTO transactions (id, type, description, amount, category, date)
+        VALUES (${transaction.id}, ${transaction.type}, ${transaction.description}, ${transaction.amount}, ${transaction.category}, ${transaction.date})
+        ON CONFLICT (id) DO UPDATE SET
+          type = EXCLUDED.type,
+          description = EXCLUDED.description,
+          amount = EXCLUDED.amount,
+          category = EXCLUDED.category,
+          date = EXCLUDED.date;
+      `;
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error inserting transaction:', error);

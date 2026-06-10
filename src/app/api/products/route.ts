@@ -40,11 +40,39 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const product = await request.json();
-    await sql`
-      INSERT INTO products (id, name, type, category, stock, min_stock, price, cost, unit, recipe, last_updated)
-      VALUES (${product.id}, ${product.name}, ${product.type}, ${product.category}, ${product.stock}, ${product.minStock}, ${product.price}, ${product.cost}, ${product.unit}, ${JSON.stringify(product.recipe)}, NOW());
-    `;
+    const data = await request.json();
+    
+    // Si data es un array, es una sincronización completa
+    if (Array.isArray(data)) {
+      // Por simplicidad en este MVP, borramos y reinsertamos
+      // En una app real usaríamos UPSERT o transacciones
+      await sql`DELETE FROM products;`;
+      
+      for (const product of data) {
+        await sql`
+          INSERT INTO products (id, name, type, category, stock, min_stock, price, cost, unit, recipe, last_updated)
+          VALUES (${product.id}, ${product.name}, ${product.type}, ${product.category}, ${product.stock}, ${product.minStock}, ${product.price}, ${product.cost}, ${product.unit}, ${JSON.stringify(product.recipe)}, NOW());
+        `;
+      }
+    } else {
+      // Si es un solo objeto, es una inserción/actualización individual
+      const product = data;
+      await sql`
+        INSERT INTO products (id, name, type, category, stock, min_stock, price, cost, unit, recipe, last_updated)
+        VALUES (${product.id}, ${product.name}, ${product.type}, ${product.category}, ${product.stock}, ${product.minStock}, ${product.price}, ${product.cost}, ${product.unit}, ${JSON.stringify(product.recipe)}, NOW())
+        ON CONFLICT (id) DO UPDATE SET
+          name = EXCLUDED.name,
+          type = EXCLUDED.type,
+          category = EXCLUDED.category,
+          stock = EXCLUDED.stock,
+          min_stock = EXCLUDED.min_stock,
+          price = EXCLUDED.price,
+          cost = EXCLUDED.cost,
+          unit = EXCLUDED.unit,
+          recipe = EXCLUDED.recipe,
+          last_updated = NOW();
+      `;
+    }
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error inserting product:', error);
